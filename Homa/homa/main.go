@@ -15,6 +15,7 @@ import (
 	"net/http"
 )
 
+// Main function initiates the homa server and routes.
 func Main() {
 	fs := http.FileServer(http.Dir("homa-ui/dist"))
 	http.Handle("/", fs)
