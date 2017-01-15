@@ -13,7 +13,6 @@ void setup() {
 	SPI.begin();
 	/* Initialize MFRC522 instance */
 	mfrc522.PCD_Init();
-	Serial.println("Scan PICC to see UID and type...");
 }
 
 void loop() {
