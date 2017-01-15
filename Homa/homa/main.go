@@ -11,12 +11,18 @@
 package homa
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
 
-// Main function initiates the homa server and routes.
+// Main function initiates the homa server and it's routes.
 func Main() {
+	go serialServe()
+	httpServe()
+}
+
+func httpServe() {
 	fs := http.FileServer(http.Dir("homa-ui/dist"))
 	http.Handle("/", fs)
 
@@ -24,4 +30,16 @@ func Main() {
 	if err := http.ListenAndServe(":1373", nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
+}
+
+func serialServe() {
+	s := SerialTagReader{}
+	s.Init()
+
+	var t *Tag
+	for t == nil {
+		t = s.Read()
+	}
+
+	fmt.Println(t.uid)
 }
