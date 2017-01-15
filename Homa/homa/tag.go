@@ -2,7 +2,7 @@ package homa
 
 // Tag structure stores information about tags.
 type Tag struct {
-	uid []byte
+	uid string
 }
 
 // TagReader interface provides a way to read the tags.
