@@ -7,6 +7,5 @@ type Tag struct {
 
 // TagReader interface provides a way to read the tags.
 type TagReader interface {
-	Init()
 	Read() *Tag
 }
