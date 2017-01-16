@@ -26,26 +26,29 @@ void loop() {
 		return;
 	}
 
-	//Show UID on serial monitor
+	/* Show UID on serial monitor */
 	String content= "";
 	for (byte i = 0; i < mfrc522.uid.size; i++) {
 		content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
 		content.concat(String(mfrc522.uid.uidByte[i], HEX));
 	}
 	Serial.println("@" + content);
-	//mfrc522.PICC_DumpToSerial(&(mfrc522.uid));
 
+	/* Authenticate sector 8 of RFID Tag with default key */
 	MFRC522::MIFARE_Key key;
 
+	/* Default password for sectors is 0xFF */
 	for (byte i = 0; i < MFRC522::MF_KEY_SIZE; i++)
 		key.keyByte[i] = 0xFF;
 
-	byte code = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 8, &key, &mfrc522.uid);
-	if (code != MFRC522::STATUS_OK) {
-		Serial.println("Not authenticated: " + String(int(code)));
+	byte status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 8, &key, &mfrc522.uid);
+	if (status != MFRC522::STATUS_OK) {
+		Serial.print("Not authenticated: ");
+		Serial.println(GetStatusCodeName(status));
 	}
 
-	Serial.println("Listening ...");
+	/* Get user command */
+	Serial.println("Waiting ...");
 	char inputChar = 0;
 	String inputLine = "";
 
@@ -58,27 +61,29 @@ void loop() {
 
 	Serial.println("r" + inputLine);
 
+	/* Read 32 bit value from sector 8 */
 	if (inputLine[0] == 'R') {
 		int32_t value;
-		char *value_c = (char *)&value;
+		char *value_p = (char *)&value;
 
 		mfrc522.MIFARE_GetValue(8, &value);
 
 		for (byte i = 0; i < 4; i++) {
-			Serial.print(char(value_c[i]));
+			Serial.print(char(value_p[i]));
 		}
 		Serial.println();
 
+	/* Write 32 bit value to sector 8 */
 	} else if (inputLine[0] == 'W') {
 		int32_t value = 0;
-		char *value_c = (char *)&value;
+		char *value_p = (char *)&value;
 
 		for (byte i = 0; i < 4; i++) {
-			value_c[i] = inputLine[i + 2];
+			value_p[i] = inputLine[i + 2];
 		}
 
 		for (byte i = 0; i < 4; i++) {
-			Serial.print(char(value_c[i]));
+			Serial.print(char(value_p[i]));
 		}
 		Serial.println();
 
